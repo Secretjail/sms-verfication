@@ -41,7 +41,7 @@ def login():
         password = '1'
         if password == '1' and username=='user':
             login_user(user)
-            return redirect(request.args.get("next")) #TODO:test
+            return redirect('/')) #TODO: test
         else:
             return abort(401)
     else:
