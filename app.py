@@ -1,4 +1,4 @@
-from flask import Flask,Response, redirect, url_for, request, session, abort
+from flask import Flask,Response, redirect, url_for, request, session, abort,render_template
 from flask_login import LoginManager, UserMixin,login_required, login_user, logout_user 
 
 app = Flask(__name__)
@@ -28,7 +28,7 @@ user = User(0)
 
 # some protected url
 @app.route('/')
-@login_required
+#@login_required
 def home():
     return Response("Hello f-l World!")
 
@@ -45,13 +45,14 @@ def login():
         else:
             return abort(401)
     else:
-        return Response('''
+        html_str= Response(f'''
         <form action="" method="post">
             <p><input type=text name=username>
             <p><input type=password name=password>
             <p><input type=submit value=Login>
         </form>
         ''')
+        return render_template('index.html')
 
 
 # somewhere to logout
