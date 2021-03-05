@@ -1,0 +1,7 @@
+DB_HOST = "localhost"
+DB_USER= "database user"
+DB_PASSWORD = "database password"
+DB_DATABASE = "database name"
+SECRET_KEY = "some strong secret key"
+ADMIN_USER = "flask admin email"
+ADMIN_PASSWORD = "flask admin password"

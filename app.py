@@ -1,7 +1,26 @@
 from flask import Flask,Response, redirect, url_for, request, session, abort,render_template
-from flask_login import LoginManager, UserMixin,login_required, login_user, logout_user 
+from flask_login import LoginManager, UserMixin,login_required, login_user, logout_user,current_user 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import mysql.connector
+
+
+from getpass import getpass
+from mysql.connector import connect, Error
 
 app = Flask(__name__)
+
+app.config.from_pyfile('config/app.conf', silent=True)
+limiter = Limiter(app, key_func=get_remote_address)
+
+mydb = mysql.connector.connect(
+ host=app.config.get("DB_HOST"),
+ user=app.config.get("DB_USER"),
+ password=app.config.get("DB_PASSWORD"),
+ database=app.config.get("DB_DATABASE")
+)
+
+mycursor = mydb.cursor()
 
 # flask-login
 login_manager = LoginManager()
@@ -10,49 +29,45 @@ login_manager.login_view = "login"
 
 # config
 app.config.update(
-    SECRET_KEY = '123test'
+    SECRET_KEY = app.config.get("SECRET_KEY")
 )
 # silly user model
 class User(UserMixin):
-
     def __init__(self, id):
         self.id = id
 
     def __repr__(self):
         return "%d" % (self.id)
 
-
 # create some users with ids 1 to 20
 user = User(0)
 
-
 # some protected url
 @app.route('/')
-#@login_required
+@login_required
 def home():
-    return Response("Hello f-l World!")
+    return render_template('index.html')
 
+#app.run(debug=True)
 
-# somewhere to login
+#somewhere to login
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def login():
+    if current_user.is_authenticated:
+        return redirect('/')
     if request.method == 'POST':
-        username = 'user'
-        password = '123'
-        if password == '123' and username=='user':
+        username = request.form['username']
+        password = request.form['password']
+        mycursor.execute("select * from  users where (email=\""+username+"\" and password=\""+password+"\");")
+        res = mycursor.fetchall()
+        if(len(res)==1):
             login_user(user)
             return redirect('/') #TODO: test
         else:
             return abort(401)
     else:
-        html_str= Response(f'''
-        <form action="" method="post">
-            <p><input type=text name=username>
-            <p><input type=password name=password>
-            <p><input type=submit value=Login>
-        </form>
-        ''')
-        return render_template('index.html')
+            return render_template('login.html')
 
 
 # somewhere to logout
@@ -60,13 +75,13 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return Response('<p>Logged out</p>')
+    return render_template('login.html')
 
 
 # handle login failed
 @app.errorhandler(401)
 def page_not_found(error):
-    return Response('<p>Login failed</p>')
+    return Response('<p>Login failed <a href=\"login\">Goto Login</a></p>')
 
 
 # callback to reload the user object
@@ -74,12 +89,6 @@ def page_not_found(error):
 def load_user(userid):
     return User(userid)
 
-
-@app.route('/')
-def main_page():
-	'''tet comment
-	'''
-	return 'Hellow world'
 
 @app.route('/v1/callback')
 def callback():
