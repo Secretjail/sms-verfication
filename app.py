@@ -10,7 +10,7 @@ login_manager.login_view = "login"
 
 # config
 app.config.update(
-    SECRET_KEY = '123'
+    SECRET_KEY = '123test'
 )
 # silly user model
 class User(UserMixin):
@@ -38,8 +38,8 @@ def home():
 def login():
     if request.method == 'POST':
         username = 'user'
-        password = '1'
-        if password == '1' and username=='user':
+        password = '123'
+        if password == '123' and username=='user':
             login_user(user)
             return redirect('/') #TODO: test
         else:
