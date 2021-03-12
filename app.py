@@ -1,7 +1,11 @@
+#!/usr/bin/python
 from flask import Flask,Response, redirect, url_for, request, session, abort,render_template
 from flask_login import LoginManager, UserMixin,login_required, login_user, logout_user,current_user 
+from flask_security import LoginForm, url_for_security
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_security.forms import RegisterForm
+
 import mysql.connector
 
 
@@ -9,9 +13,9 @@ from getpass import getpass
 from mysql.connector import connect, Error
 
 app = Flask(__name__)
-
 app.config.from_pyfile('config/app.conf', silent=True)
 limiter = Limiter(app, key_func=get_remote_address)
+
 
 mydb = mysql.connector.connect(
  host=app.config.get("DB_HOST"),
@@ -31,6 +35,7 @@ login_manager.login_view = "login"
 app.config.update(
     SECRET_KEY = app.config.get("SECRET_KEY")
 )
+
 # silly user model
 class User(UserMixin):
     def __init__(self, id):
@@ -48,6 +53,18 @@ user = User(0)
 def home():
     return render_template('index.html')
 
+
+
+@app.route('/flot')
+@login_required
+def flot():
+    return render_template('flot.html')
+
+
+@app.route('/morris')
+@login_required
+def morris():
+    return render_template('morris.html')
 #app.run(debug=True)
 
 #somewhere to login
@@ -59,6 +76,9 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        form_qoute=str.maketrans('', '', '\'"\\-')
+        username=username.translate(form_qoute)
+        password=password.translate(form_qoute)
         mycursor.execute("select * from  users where (email=\""+username+"\" and password=\""+password+"\");")
         res = mycursor.fetchall()
         if(len(res)==1):
@@ -101,7 +121,6 @@ def proccess():
 	then send it ass sms for user
 	'''
 	pass
-
 
 @app.route('/v1/send_sms')
 def send_sms():
