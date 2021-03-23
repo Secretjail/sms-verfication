@@ -24,8 +24,9 @@ price = price_not_rounded[:-6]
 message = "قیمت {} \n {} ".format(symbol, price)
 print (btc_price)
 
-api =  os.environ.get('Kavenegar_API') #add as os env
-#params = { 'sender' : '2000500666', 'receptor': '0918370***', 'message' : message }
+#api =  os.environ.get('Kavenegar_API') #add as os env
+api= '4C4779303851303577706639654E356E546158672F73486958754F634651714B437469764C584548397A6F3'
+#params = { 'sender' : '2000500666', 'receptor': '09187878498', 'message' : message }
 #response = api.sms_send( params)
 
 
@@ -34,4 +35,4 @@ api =  os.environ.get('Kavenegar_API') #add as os env
 data = 'receptor=' + str(sys.argv[1])  + '&' + 'token=BNBUSDT' + '&' + 'token2=' + price + '&' + 'template=symb'
 url="https://api.kavenegar.com/v1/" +  api + "/verify/lookup.json?" + data
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-#r = requests.post(url, headers=headers)
+r = requests.post(url, headers=headers)

@@ -25,10 +25,10 @@ def process_message(msg):
     c+=1
 
 # start any sockets here, i.e a trade socket
-conn_key = bm.start_trade_socket('ADAUSDT', process_message)
+#conn_key = bm.start_trade_socket('ADAUSDT', process_message)
 
 #kline
-#conn_key = bm.start_kline_socket('ADAUSDT', process_message, interval=KLINE_INTERVAL_3MINUTE)
+conn_key = bm.start_kline_socket('ADAUSDT', process_message, interval=KLINE_INTERVAL_3MINUTE)
 
 # then start the socket manager
 bm.start()
